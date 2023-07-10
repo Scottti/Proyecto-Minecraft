@@ -1,6 +1,8 @@
 import { usePlane } from '@react-three/cannon'
 import { useStore } from '../hooks/useStore.js'
 import { groundTexture } from '../images/textures.js'
+import { useEffect, useRef, useState } from 'react'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 export function Ground () {
   const [ref] = usePlane(() => ({
@@ -8,25 +10,32 @@ export function Ground () {
     position: [0, -0.5, 0]
   }))
 
-  const [addCube] = useStore(state => [state.addCube])
+  const [addCube] = useStore((state) => [state.addCube])
+  const [modelLoaded, setModelLoaded] = useState(false)
+  const modelRef = useRef()
 
-  groundTexture.repeat.set(100, 100)
+  useEffect(() => {
+    const loader = new GLTFLoader()
+    loader.load('../images/giraffe.glb', (gltf) => {
+      modelRef.current = gltf.scene
+      setModelLoaded(true)
+    })
+  }, [])
 
-  const handleClickGround = event => {
+  const handleClickGround = (event) => {
     event.stopPropagation()
-    const [x, y, z] = Object.values(event.point)
-      .map(n => Math.ceil(n))
+    const [x, y, z] = Object.values(event.point).map((n) => Math.ceil(n))
 
     addCube(x, y, z)
   }
 
   return (
-    <mesh
-      onClick={handleClickGround}
-      ref={ref}
-    >
-      <planeBufferGeometry attach='geometry' args={[100, 100]} />
-      <meshStandardMaterial attach='material' map={groundTexture} />
-    </mesh>
+    <>
+      {modelLoaded && <primitive object={modelRef.current} />}
+      <mesh onClick={handleClickGround} ref={ref}>
+        <planeBufferGeometry attach='geometry' args={[43, 43]} />
+        <meshStandardMaterial attach='material' map={groundTexture} />
+      </mesh>
+    </>
   )
 }

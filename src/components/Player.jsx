@@ -1,11 +1,12 @@
 import { useSphere } from '@react-three/cannon'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
-import { Vector3 } from 'three'
+import { Vector3, MathUtils } from 'three'
 import { useKeyboard } from '../hooks/useKeyboard.js'
 
 const CHARACTER_SPEED = 4
 const CHARACTER_JUMP_FORCE = 4
+const ROTATION_ANGLE = Math.PI / 2
 
 export const Player = () => {
   const {
@@ -20,7 +21,7 @@ export const Player = () => {
   const [ref, api] = useSphere(() => ({
     mass: 1,
     type: 'Dynamic',
-    position: [0, 0.5, 0]
+    position: [-12, 0.5, 12]
   }))
 
   const pos = useRef([0, 0, 0])
@@ -63,12 +64,13 @@ export const Player = () => {
     direction
       .subVectors(frontVector, sideVector)
       .normalize()
-      .multiplyScalar(CHARACTER_SPEED) // walk: 2, run: 5
-      .applyEuler(camera.rotation)
+      .multiplyScalar(CHARACTER_SPEED)
+
+    direction.applyEuler(camera.rotation)
 
     api.velocity.set(
       direction.x,
-      vel.current[1], // ???? saltar.
+      vel.current[1],
       direction.z
     )
 
@@ -79,9 +81,13 @@ export const Player = () => {
         vel.current[2]
       )
     }
+
+    ref.current.rotation.y = MathUtils.lerp(
+      ref.current.rotation.y,
+      ROTATION_ANGLE,
+      0.1
+    )
   })
 
-  return (
-    <mesh ref={ref} />
-  )
+  return <mesh ref={ref} />
 }

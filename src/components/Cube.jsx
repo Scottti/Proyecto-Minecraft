@@ -5,7 +5,10 @@ import * as textures from '../images/textures.js'
 
 export const Cube = ({ id, position, texture }) => {
   const [isHovered, setIsHovered] = useState(false)
-  const [removeCube] = useStore(state => [state.removeCube])
+  const { addCube, removeCube } = useStore(state => ({
+    addCube: state.addCube,
+    removeCube: state.removeCube
+  }))
 
   const [ref] = useBox(() => ({
     type: 'Static',
@@ -13,6 +16,16 @@ export const Cube = ({ id, position, texture }) => {
   }))
 
   const activeTexture = textures[texture + 'Texture']
+
+  const handleClick = (e) => {
+    e.stopPropagation()
+
+    if (e.altKey) {
+      removeCube(id)
+    } else {
+      addCube(position, texture) // Agregar un nuevo cubo en la posición y con la textura especificada
+    }
+  }
 
   return (
     <mesh
@@ -25,13 +38,7 @@ export const Cube = ({ id, position, texture }) => {
         setIsHovered(false)
       }}
       ref={ref}
-      onClick={(e) => {
-        e.stopPropagation()
-
-        if (e.altKey) {
-          removeCube(id)
-        }
-      }}
+      onClick={handleClick}
     >
       <boxBufferGeometry attach='geometry' />
       <meshStandardMaterial

@@ -4,7 +4,7 @@ import { useKeyboard } from '../hooks/useKeyboard.js'
 import { useEffect, useState } from 'react'
 
 export const TextureSelector = () => {
-  const [visible, setVisible] = useState(true)
+  const [ visible, setVisible] = useState(true)
   const [texture, setTexture] = useStore(state => [state.texture, state.setTexture])
 
   const {
